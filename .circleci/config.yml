@@ -94,7 +94,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - notify_on_failure
+    #  - notify_on_failure
 
   build-backend:
     docker:
@@ -112,7 +112,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notify_on_failure
+    #  - notify_on_failure
 
   test-frontend:
     docker:
@@ -127,7 +127,7 @@ jobs:
           command: |
             npm install
             npm test
-      - notify_on_failure
+    #  - notify_on_failure
 
   test-backend:
     docker:
@@ -142,7 +142,7 @@ jobs:
           command: |
             npm install
             npm test
-      - notify_on_failure
+    #  - notify_on_failure
             
   scan-frontend:
     docker:
@@ -158,7 +158,7 @@ jobs:
             npm install
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify_on_failure
+    #  - notify_on_failure
 
   scan-backend:
     docker:
@@ -175,7 +175,7 @@ jobs:
             npm audit fix --force --audit-level=critical
             npm audit fix --force --audit-level=critical
             npm audit --audit-level=critical
-      - notify_on_failure
+    #  - notify_on_failure
 
   deploy-infrastructure:
     docker:
@@ -213,7 +213,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
-      - notify_on_failure
+    #  - notify_on_failure
 
   configure-infrastructure:
     docker:
@@ -223,7 +223,7 @@ jobs:
       - install_awscli
       - install_ansible
       - add_ssh_keys:
-          fingerprints: ["9b:79:40:96:36:ce:90:d3:dc:42:7f:02:fa:d0:4c:96"]
+          fingerprints: ["a9:ac:2f:b2:d9:36:49:ae:ef:5c:85:29:bc:0b:40:02"]
       - attach_workspace:
           at: ~/
       - run:
@@ -234,7 +234,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - revert-migrations
-      - notify_on_failure 
+     # - notify_on_failure 
 
   run-migrations:
     docker:
@@ -257,7 +257,7 @@ jobs:
             fi
       - destroy-environment
       - revert-migrations
-      - notify_on_failure
+    #  - notify_on_failure
                     
   deploy-frontend:
     docker:
@@ -290,8 +290,8 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
       - revert-migrations
-      - notify_on_failure
-
+    #  - notify_on_failure
+ 
   deploy-backend:
     docker:
       - image: cimg/base:stable
@@ -301,7 +301,7 @@ jobs:
       - install_ansible
       - install_nodejs
       - add_ssh_keys:
-          fingerprints: ["9b:79:40:96:36:ce:90:d3:dc:42:7f:02:fa:d0:4c:96"]
+          fingerprints: ["a9:ac:2f:b2:d9:36:49:ae:ef:5c:85:29:bc:0b:40:02"]
       - attach_workspace:
           at: ~/
       - restore_cache:
@@ -330,7 +330,7 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
-      - notify_on_failure   
+   #   - notify_on_failure   
 
   smoke-test:
     docker:
@@ -365,7 +365,7 @@ jobs:
             fi
       - destroy-environment
       - revert-migrations
-      - notify_on_failure
+  #    - notify_on_failure
 
   cloudfront-update:
     docker:
@@ -391,7 +391,7 @@ jobs:
               --stack-name InitialStack
       - destroy-environment
       - revert-migrations
-      - notify_on_failure
+ #     - notify_on_failure
 
   cleanup:
     docker:
@@ -415,16 +415,16 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-backend-${oldworkflowid}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${oldworkflowid}"
             fi
-      - notify_on_failure
+#      - notify_on_failure
 
-  notify_on_success:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - slack/notify:
-          event: pass
-          channel: ci-cd-alerts
-          template: success_tagged_deployment_1
+  # notify_on_success:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - slack/notify:
+  #         event: pass
+  #         channel: ci-cd-alerts
+  #         template: success_tagged_deployment_1
             
 workflows:
   default:
@@ -458,18 +458,18 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
-      - notify_on_success:
-          requires:
-            - test-frontend
-            - test-backend
-            - scan-frontend
-            - scan-backend
-            - deploy-infrastructure
-            - configure-infrastructure
-            - run-migrations
-            - deploy-frontend
-            - deploy-backend
-            - smoke-test
-            - cloudfront-update
-            - cleanup
+      # - notify_on_success:
+      #     requires:
+      #       - test-frontend
+      #       - test-backend
+      #       - scan-frontend
+      #       - scan-backend
+      #       - deploy-infrastructure
+      #       - configure-infrastructure
+      #       - run-migrations
+      #       - deploy-frontend
+      #       - deploy-backend
+      #       - smoke-test
+      #       - cloudfront-update
+      #       - cleanup
             
